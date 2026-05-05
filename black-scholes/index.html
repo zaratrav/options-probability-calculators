@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Black-Scholes Calculator</title>
+<link rel="stylesheet" href="style.css">
+    <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+</head>
+<body>
+
+<h1>Black-Scholes Calculator</h1>
+
+<p>Estimate probabilities and expected outcomes for options trading.</p>
+
+
+<label>Underlying price:</label><input id="s" type="number">
+<label>Strike:</label><input id="k" type="number">
+<label>Volatility (%):</label><input id="v" type="number">
+
+
+<button onclick="calc()">Calculate</button>
+
+<p id="result"></p>
+
+<h3>Other tools</h3>
+<ul>
+<li><a href="../prob-profit/index.html">Probability of Profit Calculator (Options)</a></li><li><a href="../win-rate/index.html">Options Win Rate Simulator (Strategy-Based)</a></li><li><a href="../binomial/index.html">Binomial Options Pricing Model Calculator</a></li><li><a href="../expected-value/index.html">Expected Value Calculator (Options Trades)</a></li><li><a href="../monte-carlo/index.html">Monte Carlo Simulator (Options Strategies)</a></li><li><a href="../itm-otm/index.html">Probability ITM/OTM Calculator (Options)</a></li>
+</ul>
+
+<script>
+function calc(){
+
+let s=parseFloat(document.getElementById('s').value)||0;
+let k=parseFloat(document.getElementById('k').value)||0;
+let v=parseFloat(document.getElementById('v').value)||0;
+let price = s - k + (v/100);
+
+let output = typeof ev !== 'undefined' ? ev :
+             (typeof prob !== 'undefined' ? prob :
+             (typeof wins !== 'undefined' ? wins :
+             (typeof price !== 'undefined' ? price :
+             (typeof result !== 'undefined' ? result : expected))));
+document.getElementById('result').innerText="Result: "+output.toFixed(2);
+}
+</script>
+
+</body>
+</html>

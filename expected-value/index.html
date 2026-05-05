@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Expected Value Calculator (Options Trades)</title>
+<link rel="stylesheet" href="style.css">
+    <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+</head>
+<body>
+
+<h1>Expected Value Calculator (Options Trades)</h1>
+
+<p>Estimate probabilities and expected outcomes for options trading.</p>
+
+
+<label>Win probability (%):</label><input id="win" type="number">
+<label>Average win ($):</label><input id="win_amt" type="number">
+<label>Average loss ($):</label><input id="loss_amt" type="number">
+
+
+<button onclick="calc()">Calculate</button>
+
+<p id="result"></p>
+
+<h3>Other tools</h3>
+<ul>
+<li><a href="../prob-profit/index.html">Probability of Profit Calculator (Options)</a></li><li><a href="../win-rate/index.html">Options Win Rate Simulator (Strategy-Based)</a></li><li><a href="../black-scholes/index.html">Black-Scholes Calculator</a></li><li><a href="../binomial/index.html">Binomial Options Pricing Model Calculator</a></li><li><a href="../monte-carlo/index.html">Monte Carlo Simulator (Options Strategies)</a></li><li><a href="../itm-otm/index.html">Probability ITM/OTM Calculator (Options)</a></li>
+</ul>
+
+<script>
+function calc(){
+
+let win=parseFloat(document.getElementById('win').value)||0;
+let win_amt=parseFloat(document.getElementById('win_amt').value)||0;
+let loss_amt=parseFloat(document.getElementById('loss_amt').value)||0;
+let ev = (win/100)*win_amt - ((100-win)/100)*loss_amt;
+
+let output = typeof ev !== 'undefined' ? ev :
+             (typeof prob !== 'undefined' ? prob :
+             (typeof wins !== 'undefined' ? wins :
+             (typeof price !== 'undefined' ? price :
+             (typeof result !== 'undefined' ? result : expected))));
+document.getElementById('result').innerText="Result: "+output.toFixed(2);
+}
+</script>
+
+</body>
+</html>

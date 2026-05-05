@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Probability of Profit Calculator (Options)</title>
+<link rel="stylesheet" href="style.css">
+    <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+</head>
+<body>
+
+<h1>Probability of Profit Calculator (Options)</h1>
+
+<p>Estimate probabilities and expected outcomes for options trading.</p>
+
+
+<label>Winning trades:</label><input id="wins" type="number">
+<label>Total trades:</label><input id="total" type="number">
+
+
+<button onclick="calc()">Calculate</button>
+
+<p id="result"></p>
+
+<h3>Other tools</h3>
+<ul>
+<li><a href="../win-rate/index.html">Options Win Rate Simulator (Strategy-Based)</a></li><li><a href="../black-scholes/index.html">Black-Scholes Calculator</a></li><li><a href="../binomial/index.html">Binomial Options Pricing Model Calculator</a></li><li><a href="../expected-value/index.html">Expected Value Calculator (Options Trades)</a></li><li><a href="../monte-carlo/index.html">Monte Carlo Simulator (Options Strategies)</a></li><li><a href="../itm-otm/index.html">Probability ITM/OTM Calculator (Options)</a></li>
+</ul>
+
+<script>
+function calc(){
+
+let wins=parseFloat(document.getElementById('wins').value)||0;
+let total=parseFloat(document.getElementById('total').value)||1;
+let prob = (wins/total)*100;
+
+let output = typeof ev !== 'undefined' ? ev :
+             (typeof prob !== 'undefined' ? prob :
+             (typeof wins !== 'undefined' ? wins :
+             (typeof price !== 'undefined' ? price :
+             (typeof result !== 'undefined' ? result : expected))));
+document.getElementById('result').innerText="Result: "+output.toFixed(2);
+}
+</script>
+
+</body>
+</html>
