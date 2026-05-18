@@ -1,16 +1,447 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
-<title>Options Probability Calculators</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+    <title>Binomial Option Pricing Model Calculator: European & American Options</title>
+    <meta name="description" content="Free binomial option pricing calculator. Calculate option prices using the binomial tree model for European and American calls/puts. Includes step-by-step binomial tree visualization.">
+    <meta name="keywords" content="binomial option calculator, binomial option pricing, binomial option model, binomial tree calculator, option pricing model, european option calculator, american option calculator">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header class="header">
+        <div class="container">
+            <h1>Binomial Option Pricing Model Calculator</h1>
+            <p class="subtitle">Calculate European & American option prices using the binomial tree method</p>
+        </div>
+    </header>
 
-<h1>Options Probability Calculators</h1>
+    <main>
+        <section class="intro">
+            <div class="container">
+                <h2>Price Options Accurately with the Binomial Model</h2>
+                <p>
+                    The binomial option pricing model values options by building a tree of possible stock prices and working backward 
+                    to calculate option values at each node. Unlike Black-Scholes (which assumes continuous pricing), the binomial model 
+                    is more flexible: it handles American options (can be exercised early), dividends, and non-constant volatility. 
+                    This calculator implements the binomial model with full transparency—see the tree structure and all calculations.
+                </p>
+            </div>
+        </section>
 
-<p>Probability and statistical modeling are essential in options trading. These tools help estimate win rates, expected value, and pricing models.</p>
+        <!-- BINOMIAL CALCULATOR TOOL -->
+        <section class="featured-tool">
+            <div class="container">
+                <h2>Binomial Option Pricing Calculator</h2>
+                <p>Enter option parameters and choose the number of steps in the binomial tree. More steps = more accuracy but slower calculation.</p>
 
-<ul>
-<li><a href="prob-profit/index.html">Probability of Profit Calculator (Options)</a></li><li><a href="win-rate/index.html">Options Win Rate Simulator (Strategy-Based)</a></li><li><a href="black-scholes/index.html">Black-Scholes Calculator</a></li><li><a href="binomial/index.html">Binomial Options Pricing Model Calculator</a></li><li><a href="expected-value/index.html">Expected Value Calculator (Options Trades)</a></li><li><a href="monte-carlo/index.html">Monte Carlo Simulator (Options Strategies)</a></li><li><a href="itm-otm/index.html">Probability ITM/OTM Calculator (Options)</a></li></ul></body></html>
+                <div class="calculator binomial-calc">
+                    <div class="calc-section">
+                        <h3>Option Parameters</h3>
+                        <p class="section-hint">Enter all required fields. Stock price, strike, rate are annual.</p>
+
+                        <div class="inputs-grid">
+                            <div class="input-group">
+                                <label>Stock Price (S) ($)</label>
+                                <input type="number" id="stockPrice" placeholder="100" value="100" step="0.01" min="0.01">
+                            </div>
+                            <div class="input-group">
+                                <label>Strike Price (K) ($)</label>
+                                <input type="number" id="strikePrice" placeholder="100" value="100" step="0.01" min="0.01">
+                            </div>
+                            <div class="input-group">
+                                <label>Time to Expiration (Years)</label>
+                                <input type="number" id="timeToExp" placeholder="1" value="1" step="0.01" min="0.01">
+                                <span class="input-hint">e.g., 0.25 = 3 months</span>
+                            </div>
+                            <div class="input-group">
+                                <label>Risk-Free Rate (% Annual)</label>
+                                <input type="number" id="riskFreeRate" placeholder="5" value="5" step="0.1" min="0">
+                                <span class="input-hint">e.g., 5% = 5</span>
+                            </div>
+                            <div class="input-group">
+                                <label>Volatility (% Annual)</label>
+                                <input type="number" id="volatility" placeholder="25" value="25" step="0.1" min="0.1">
+                                <span class="input-hint">e.g., 25% = 25</span>
+                            </div>
+                            <div class="input-group">
+                                <label>Dividend Yield (% Annual)</label>
+                                <input type="number" id="dividendYield" placeholder="0" value="0" step="0.1" min="0">
+                                <span class="input-hint">e.g., 2% = 2</span>
+                            </div>
+                        </div>
+
+                        <div class="option-type-selector">
+                            <h4>Option Type</h4>
+                            <div class="type-buttons">
+                                <button class="type-btn active" onclick="selectType('call', this)">Call Option</button>
+                                <button class="type-btn" onclick="selectType('put', this)">Put Option</button>
+                            </div>
+                            <div class="exercise-buttons">
+                                <button class="exercise-btn active" onclick="selectExercise('european', this)">European (exercise at expiration)</button>
+                                <button class="exercise-btn" onclick="selectExercise('american', this)">American (exercise anytime)</button>
+                            </div>
+                        </div>
+
+                        <div class="tree-steps">
+                            <h4>Binomial Tree Steps</h4>
+                            <div class="step-slider">
+                                <input type="range" id="treeSteps" min="1" max="20" value="5" onchange="updateStepLabel()">
+                                <span id="stepLabel">5 steps</span>
+                            </div>
+                            <p class="step-hint">More steps = more accuracy but slower. Start with 5, increase if needed.</p>
+                        </div>
+
+                        <button class="calculate-btn" onclick="calculateBinomial()">Calculate Option Price</button>
+                    </div>
+
+                    <!-- RESULTS -->
+                    <div class="calc-results" id="binomialResults" style="display: none;">
+                        <h3>Binomial Option Pricing Results</h3>
+
+                        <div class="results-grid">
+                            <div class="result-card">
+                                <span class="metric-label">Option Price</span>
+                                <span class="metric-display" id="optionPrice">$0.00</span>
+                                <span class="metric-hint">Fair value today</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="metric-label">Intrinsic Value</span>
+                                <span class="metric-display" id="intrinsicValue">$0.00</span>
+                                <span class="metric-hint">Immediate exercise value</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="metric-label">Time Value</span>
+                                <span class="metric-display" id="timeValue">$0.00</span>
+                                <span class="metric-hint">Premium over intrinsic</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="metric-label">Stock Range at Expiration</span>
+                                <span class="metric-display" id="stockRange">$0 - $0</span>
+                                <span class="metric-hint">Binomial tree bounds</span>
+                            </div>
+                        </div>
+
+                        <div class="tree-visualization">
+                            <h4>Binomial Tree Visualization (First 3 Levels)</h4>
+                            <div id="treeCanvas" class="tree-canvas"></div>
+                        </div>
+
+                        <div class="calculation-summary">
+                            <h4>Calculation Summary</h4>
+                            <table id="summaryTable" class="summary-table">
+                                <tr>
+                                    <td><strong>Up Factor (u)</strong></td>
+                                    <td id="upFactor"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Down Factor (d)</strong></td>
+                                    <td id="downFactor"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk-Neutral Probability (p)</strong></td>
+                                    <td id="riskNeutralProb"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Time Step (Δt)</strong></td>
+                                    <td id="timeStep"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Discount Factor</strong></td>
+                                    <td id="discountFactor"></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="payoff-table-section">
+                            <h4>Final Node Payoffs (at Expiration)</h4>
+                            <table id="payoffTable" class="payoff-table">
+                                <thead>
+                                    <tr>
+                                        <th>Stock Price</th>
+                                        <th>Payoff</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payoffBody">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="comparison-box">
+                            <h4>Model Comparison</h4>
+                            <p id="comparisonText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EDUCATIONAL GUIDE -->
+        <section class="guide">
+            <div class="container">
+                <h2>Understanding the Binomial Option Pricing Model</h2>
+
+                <h3>What is the Binomial Model?</h3>
+                <p>
+                    The binomial model values options by constructing a tree of possible future stock prices. At each step, the stock 
+                    price can move up (by factor u) or down (by factor d). By calculating option payoffs at the final nodes (expiration) 
+                    and working backward through the tree, we derive the option's fair value today. This approach is intuitive, flexible, 
+                    and handles both European and American options.
+                </p>
+
+                <h3>Binomial Model vs Black-Scholes</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4>Binomial Model</h4>
+                        <ul>
+                            <li><strong>Approach:</strong> Discrete time tree (step-by-step)</li>
+                            <li><strong>Flexibility:</strong> Handles American options ✓</li>
+                            <li><strong>Dividends:</strong> Easy to incorporate ✓</li>
+                            <li><strong>Non-constant volatility:</strong> Possible ✓</li>
+                            <li><strong>Intuition:</strong> Transparent, see all paths</li>
+                            <li><strong>Speed:</strong> Slower (many steps needed)</li>
+                            <li><strong>Best for:</strong> American options, learning</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>Black-Scholes Model</h4>
+                        <ul>
+                            <li><strong>Approach:</strong> Continuous time formula</li>
+                            <li><strong>Flexibility:</strong> European only</li>
+                            <li><strong>Dividends:</strong> Possible but less natural</li>
+                            <li><strong>Non-constant volatility:</strong> Difficult</li>
+                            <li><strong>Intuition:</strong> Less transparent (formula)</li>
+                            <li><strong>Speed:</strong> Instant (mathematical formula)</li>
+                            <li><strong>Best for:</strong> European options, trading</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>How the Binomial Model Works: Step-by-Step</h3>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <h4>1. Build the Tree</h4>
+                        <p>
+                            Create a tree of possible stock prices over time. At each node, price moves up (u) or down (d). 
+                            If n steps, there are 2^n final nodes.
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4>2. Calculate Final Payoffs</h4>
+                        <p>
+                            At expiration (final nodes), calculate option payoff: 
+                            Call: max(S-K, 0) | Put: max(K-S, 0)
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4>3. Work Backward</h4>
+                        <p>
+                            For each earlier node, option value = discounted expected payoff: 
+                            V = e^(-r*Δt) * [p*V_up + (1-p)*V_down]
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4>4. Check Early Exercise (American)</h4>
+                        <p>
+                            For American options, compare intrinsic value (exercise now) vs continuation value. 
+                            Take max of both.
+                        </p>
+                    </div>
+                </div>
+
+                <h3>Key Binomial Model Formulas</h3>
+                <div class="formulas-section">
+                    <div class="formula-box">
+                        <h4>Up & Down Factors</h4>
+                        <p class="formula">u = e^(σ√Δt)</p>
+                        <p class="formula">d = e^(-σ√Δt) = 1/u</p>
+                        <p>σ = volatility, Δt = time step, e = 2.71828</p>
+                    </div>
+
+                    <div class="formula-box">
+                        <h4>Risk-Neutral Probability</h4>
+                        <p class="formula">p = (e^(r*Δt) - d) / (u - d)</p>
+                        <p>r = risk-free rate. This is NOT real probability—it's used for discounting.</p>
+                    </div>
+
+                    <div class="formula-box">
+                        <h4>Option Value (Backward Recursion)</h4>
+                        <p class="formula">V(node) = e^(-r*Δt) * [p*V_up + (1-p)*V_down]</p>
+                        <p>For American options: V = max(intrinsic, discounted expected value)</p>
+                    </div>
+
+                    <div class="formula-box">
+                        <h4>Final Payoff at Expiration</h4>
+                        <p class="formula">Call: max(S - K, 0)</p>
+                        <p class="formula">Put: max(K - S, 0)</p>
+                        <p>S = stock price at node, K = strike price</p>
+                    </div>
+                </div>
+
+                <h3>When to Use Each Option Type</h3>
+                <div class="option-types-grid">
+                    <div class="type-guide-card">
+                        <h4>📍 European Call</h4>
+                        <p><strong>Can exercise:</strong> Only at expiration</p>
+                        <p><strong>Payoff:</strong> max(S - K, 0)</p>
+                        <p><strong>Use when:</strong> Estimating theoretical price, most stocks</p>
+                    </div>
+                    <div class="type-guide-card">
+                        <h4>📍 European Put</h4>
+                        <p><strong>Can exercise:</strong> Only at expiration</p>
+                        <p><strong>Payoff:</strong> max(K - S, 0)</p>
+                        <p><strong>Use when:</strong> Downside protection, stock declines</p>
+                    </div>
+                    <div class="type-guide-card">
+                        <h4>📍 American Call</h4>
+                        <p><strong>Can exercise:</strong> Anytime before/at expiration</p>
+                        <p><strong>Payoff:</strong> max(S - K, 0) if exercised</p>
+                        <p><strong>Use when:</strong> Dividend-paying stocks, early exercise value</p>
+                    </div>
+                    <div class="type-guide-card">
+                        <h4>📍 American Put</h4>
+                        <p><strong>Can exercise:</strong> Anytime before/at expiration</p>
+                        <p><strong>Payoff:</strong> max(K - S, 0) if exercised</p>
+                        <p><strong>Use when:</strong> Deep in-the-money puts, portfolio insurance</p>
+                    </div>
+                </div>
+
+                <h3>Binomial Model Accuracy</h3>
+                <ul style="list-style-position: inside; color: var(--text-light); line-height: 1.8;">
+                    <li><strong>1-2 steps:</strong> Very rough estimate. Not recommended.</li>
+                    <li><strong>5 steps:</strong> Good balance between speed and accuracy. Start here.</li>
+                    <li><strong>10 steps:</strong> Accurate for most purposes. Standard in practice.</li>
+                    <li><strong>20+ steps:</strong> Converges to Black-Scholes formula. Very accurate but slow.</li>
+                    <li><strong>Key insight:</strong> As steps → ∞, binomial model price → Black-Scholes price</li>
+                </ul>
+
+                <h3>Common Binomial Model Mistakes</h3>
+                <div class="mistakes-grid">
+                    <div class="mistake-card">
+                        <h4>❌ Confusing u and d</h4>
+                        <p>u = up factor (> 1), d = down factor (< 1). u and d must multiply to 1: u * d = 1. Common error: using u < 1.</p>
+                    </div>
+                    <div class="mistake-card">
+                        <h4>❌ Wrong Risk-Neutral Probability</h4>
+                        <p>p is NOT the real probability of up/down. It's a mathematical construct for discounting. Real probabilities don't affect option price.</p>
+                    </div>
+                    <div class="mistake-card">
+                        <h4>❌ Forgetting Early Exercise (American)</h4>
+                        <p>American option values must check: is exercising now better than waiting? For puts especially, early exercise is often optimal.</p>
+                    </div>
+                    <div class="mistake-card">
+                        <h4>❌ Too Few Steps</h4>
+                        <p>With only 1-2 steps, the model is too coarse. Use at least 5-10 steps for decent accuracy.</p>
+                    </div>
+                    <div class="mistake-card">
+                        <h4>❌ Ignoring Dividends</h4>
+                        <p>Dividend yield reduces call value and increases put value. If dividend_yield > 0, adjust probabilities or paths accordingly.</p>
+                    </div>
+                    <div class="mistake-card">
+                        <h4>❌ Constant Volatility Assumption</h4>
+                        <p>Binomial assumes constant volatility. In reality, volatility changes. For multi-step trees, this is an approximation.</p>
+                    </div>
+                </div>
+
+                <h3>Real-World Example</h3>
+                <div class="example-box">
+                    <p><strong>Scenario:</strong> Stock at $100, strike $105, 1 year, 5% rate, 25% volatility</p>
+                    <p>
+                        With binomial (5 steps):
+                        Call price ≈ $6.50
+                    </p>
+                    <p>
+                        Black-Scholes gives ≈ $6.71 (converges as steps increase)
+                    </p>
+                    <p>
+                        Difference shrinks as steps → 20+
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQS -->
+        <section class="faqs">
+            <div class="container">
+                <h2>Frequently Asked Questions</h2>
+
+                <div class="faq-item">
+                    <h3>Why is the binomial price different from Black-Scholes?</h3>
+                    <p>
+                        With few steps, the binomial model is coarser and gives different prices. As you increase steps (5 → 10 → 20), 
+                        the binomial price converges to Black-Scholes. This is expected and normal. Use 10+ steps for close agreement.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>What does "risk-neutral probability" mean?</h3>
+                    <p>
+                        Risk-neutral probability is NOT the real-world probability of stock moving up/down. Instead, it's a mathematical 
+                        construct that makes the discounting formula work. The actual probability of future price movements is irrelevant 
+                        to option pricing (that's the "risk-neutral" insight: price depends on volatility, not direction).
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>When would American option be worth more than European?</h3>
+                    <p>
+                        For calls on non-dividend-paying stocks: Never (early exercise never optimal). For dividend stocks: Sometimes (can be 
+                        optimal to exercise just before dividend). For puts: Often (deep ITM puts gain value from early exercise). This calculator 
+                        checks both automatically.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How many steps do I need for accuracy?</h3>
+                    <p>
+                        5-10 steps is usually enough. For trading decisions, 10 steps gives 1-2¢ accuracy. For academic work or extreme precision, 
+                        use 20+ steps. Beyond 50 steps, returns diminish—just use Black-Scholes instead (it's faster and mathematically equivalent).
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Can the binomial model handle dividends?</h3>
+                    <p>
+                        Yes. The model incorporates dividend yield by adjusting the risk-neutral probability and discounting. Higher dividend 
+                        yield reduces call value and increases put value. This calculator includes dividend yield input.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Is this model used in real trading?</h3>
+                    <p>
+                        Yes, especially for American options and when volatility isn't constant. Most traders use Black-Scholes for speed, but 
+                        the binomial model is standard for American puts, employee stock options, and complex derivatives.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>What if time to expiration is very short?</h3>
+                    <p>
+                        For short times (< 0.05 years / < 2 weeks), ensure you use enough steps. Fewer steps = coarser approximation of the 
+                        continuous process. For options expiring in 1 day, use 20+ steps or switch to Black-Scholes for accuracy.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Can I use this for exotic options?</h3>
+                    <p>
+                        Not directly. This calculator handles vanilla (European/American) calls and puts. For barrier options, asians, lookbacks, 
+                        etc., the binomial model still works but requires custom path logic. More advanced calculators (like WolframAlpha or 
+                        professional platforms) handle these.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Binomial Option Pricing Calculator. Accurate option valuation for traders & students.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
